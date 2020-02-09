@@ -10,12 +10,13 @@ mi_socket.listen(5)#cantidad de peticiones que puede manejas en cola
 while True:
     conexion, addr = mi_socket.accept()
     print ("nueva conexion establecida")
-    print (addr)
+    #print (addr)
     mensaje = "saludo desde el servidor"
     conexion.send(mensaje.encode('utf-8'))
     peticion = conexion.recv(1024)
-    #respuesta = mi_socket.recv(1024)
-    #respuesta = respuesta.decode('utf-8')
-    #print (respuesta)
+    peticion = peticion.decode('utf-8')
+    peticion = int(peticion)
+    print (peticion)
+    print (type(peticion))
     conexion.close()
     
