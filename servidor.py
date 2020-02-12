@@ -3,20 +3,38 @@
 import socket
 
 #print (socket)
-mi_socket = socket.socket() #establecer la configuracion inicial con valores predeterminados
-mi_socket.bind( ('localhost',8000) )#establecer la conexion
-mi_socket.listen(5)#cantidad de peticiones que puede manejas en cola
+servidor = socket.socket() #establecer la configuracion inicial con valores predeterminados
+servidor.bind( ('localhost',8000) )#establecer la conexion
+servidor.listen(5)#cantidad de peticiones que puede manejas en cola
+cliente, addr = servidor.accept()
 
 while True:
-    conexion, addr = mi_socket.accept()
-    print ("nueva conexion establecida")
-    #print (addr)
-    mensaje = "saludo desde el servidor"
-    conexion.send(mensaje.encode('utf-8'))
-    peticion = conexion.recv(1024)
-    peticion = peticion.decode('utf-8')
-    peticion = int(peticion)
-    print (peticion)
-    print (type(peticion))
-    conexion.close()
-    
+    peticion = cliente.recv(1024)
+    print peticion
+    l = peticion.split(",")
+    print l
+    #print peticion
+
+    if l[0] == '+':
+        print 'Suma'
+        resultado = str(int(l[1]) + int(l[2]))
+    elif l[0] == '-':
+        print 'Resta'
+        resultado = str(int(l[1]) - int(l[2]))
+    elif l[0] == '*':
+        print 'Multiplicacion'
+        resultado = str(int(l[1]) *int(l[2]))
+    elif l[0] == '/':
+        print 'Division'
+        resultado = str(int(l[1]) / int(l[2]))
+    elif l[0] == '^':
+        print 'Potencia'
+        resultado = str(int(l[1]) ** int(l[2]))
+    elif l[0] == 'exit':
+        print 'Exiting'
+        servidor.close()
+        cliente.close()
+        break
+
+    print l[1],l[0],l[2], '=', resultado
+    cliente.send(str(resultado))
