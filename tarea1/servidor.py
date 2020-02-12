@@ -26,14 +26,21 @@ while True:
         print 'Multiplicacion'
         resultado = str(int(l[1]) *int(l[2]))
     elif l[0] == '/':
-        print 'Division'
-        resultado = str(int(l[1]) / int(l[2]))
+        try:
+            print 'Division'
+            resultado = str(int(l[1]) / int(l[2]))
+        except ZeroDivisionError:
+            resultado = "no se puede dividir entre cero"
     elif l[0] == '^':
         print 'Potencia'
         resultado = str(int(l[1]) ** int(l[2]))
     elif l[0] == 'log':
-        print 'logaritmo'
-        resultado = str(math.log(int(l[1]),int(l[2])))
+        try:
+            print 'logaritmo'
+            resultado = str(math.log(int(l[1]),int(l[2])))
+        except ValueError:
+            resultado= "los argumentos estan fuera del dominio"
+            
     elif l[0] == 'exit':
         print 'Exiting'
         servidor.close()
