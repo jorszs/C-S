@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import socket
+import math
 
 #print (socket)
 servidor = socket.socket() #establecer la configuracion inicial con valores predeterminados
@@ -30,6 +31,9 @@ while True:
     elif l[0] == '^':
         print 'Potencia'
         resultado = str(int(l[1]) ** int(l[2]))
+    elif l[0] == 'log':
+        print 'logaritmo'
+        resultado = str(math.log(int(l[1]),int(l[2])))
     elif l[0] == 'exit':
         print 'Exiting'
         servidor.close()
