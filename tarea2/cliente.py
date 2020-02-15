@@ -21,8 +21,8 @@ while True:
     print ('concatenacion', p)
 
     cliente.send_string(p)
-
-    print ('Resultado:',cliente.recv(1024))
+    resultado = (cliente.recv(1024).decode('utf-8'))
+    print ('Resultado:',resultado)
 
     if 'exit' == input('Type "exit" to exit, no input to continue '):
         cliente.send(b"exit")
