@@ -23,7 +23,9 @@ def redireccionar(lista,message):
         context_red = zmq.Context()
         socket = context_red.socket(zmq.REQ)
         socket.connect("tcp://127.0.0.1:"+puerto)
-        socket.send(b"hola")
+        socket.send(message)
+        respuesta = socket.recv()
+        print ("la respuesta es: "+ respuesta.decode('utf-8'))
 
 
 while True:
