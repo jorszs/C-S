@@ -26,6 +26,7 @@ def redireccionar(lista,message):
         socket.send(message)
         respuesta = socket.recv()
         print ("la respuesta es: "+ respuesta.decode('utf-8'))
+        return respuesta
 
 
 while True:
@@ -39,11 +40,14 @@ while True:
     l = message_str.split(",")
     print (l)
     #llamada a funcion redireccionar para conectarse con el servidor que tenga la operacion
-    redireccionar(l,message)
+    respuesta = redireccionar(l,message)
     print ("receive request %s" % message)
-
+    print (respuesta,type(respuesta))
+    
+    #enviar respuesta a cliente
+    socket.send(respuesta)
     #do something
 
     #send reply for client
-    socket.send(b"hi from servidor")
+    #socket.send(b"hi from servidor")
 
