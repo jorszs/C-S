@@ -2,7 +2,7 @@ import zmq
 
 context = zmq.Context()
 socket = context.socket(zmq.REP)
-socket.bind("tcp://*:8000") # el "*" conecta con el localhost
+socket.bind("tcp://*:8000") 
 
 directorio = {
     '+':'8001',
@@ -13,7 +13,7 @@ directorio = {
     'log':'8006'
 }
 
-def redireccionar(lista):
+def redireccionar(lista,message):
     operador = lista[0]
     puerto = directorio.get(operador)
     if puerto == None:
@@ -22,17 +22,22 @@ def redireccionar(lista):
         print ("estableciendo conexion")
         context_red = zmq.Context()
         socket = context_red.socket(zmq.REQ)
-        socket.bind("tcp://*:"+puerto)
+        socket.connect("tcp://127.0.0.1:"+puerto)
         socket.send(b"hola")
 
 
 while True:
     #wait for next request from client
-    redireccionar('+')
+    #redireccionar('+')
     #puerto = directorio.get('p')
     #if puerto == None:
     #    print ("nada")
     message = socket.recv()
+    message_str = message.decode('utf-8')
+    l = message_str.split(",")
+    print (l)
+    #llamada a funcion redireccionar para conectarse con el servidor que tenga la operacion
+    redireccionar(l,message)
     print ("receive request %s" % message)
 
     #do something
