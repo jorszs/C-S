@@ -16,11 +16,9 @@ directorio = {
 
 while True:
 
-    message = []
-    message = socket.recv()
-    message_str = message.decode('utf-8')
-
-    operador = message[0]
-    puerto = directorio.get(operador)
-
+    message = socket.recv_string()
+    #message_str = message.decode('utf-8')
+    print message
+    puerto = directorio.get(message)
     socket.send(puerto)
+    message_str = message.decode('utf-8')

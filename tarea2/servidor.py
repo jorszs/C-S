@@ -2,7 +2,7 @@ import zmq
 
 context = zmq.Context()
 socket = context.socket(zmq.REP)
-socket.bind("tcp://*:8000") 
+socket.bind("tcp://*:8000")
 
 directorio = {
     '+':'8001',
@@ -22,7 +22,7 @@ def redireccionar(lista,message):
         print ("estableciendo conexion")
         context_red = zmq.Context()
         socket = context_red.socket(zmq.REQ)
-        socket.connect("tcp://127.0.0.1:"+puerto)
+        socket.connect("tcp://127.0.0.1:"+ puerto)
         socket.send(message)
         respuesta = socket.recv()
         print ("la respuesta es: "+ respuesta.decode('utf-8'))
@@ -43,11 +43,10 @@ while True:
     respuesta = redireccionar(l,message)
     print ("receive request %s" % message)
     print (respuesta,type(respuesta))
-    
+
     #enviar respuesta a cliente
     socket.send(respuesta)
     #do something
 
     #send reply for client
     #socket.send(b"hi from servidor")
-

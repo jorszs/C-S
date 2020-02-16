@@ -1,7 +1,5 @@
 import zmq
-
 context = zmq.Context()
-
 # socket to talk to server
 print ("connecting")
 cliente = context.socket(zmq.REQ)
@@ -11,24 +9,26 @@ cliente.connect("tcp://localhost:8000")
 while True:
 
     o = raw_input('Operador: ')
-
     cliente.send_string(o)
 
-    message = cliente.recv()
-    message_str = message.decode('utf-8')
+    respuesta = cliente.recv()
+    message_str = respuesta.decode('utf-8')
 
-    print 'Puerto:', message
+    print 'Puerto: ', respuesta
 
-    '''a = raw_input('Ingrese el primero numero: ')
+    a = raw_input('Ingrese el primero numero: ')
     b = raw_input('Ingrese el segundo numero: ')
 
     p = o + "," + a + "," + b
 
     print ('concatenacion', p)
 
-    print ("estableciendo conexion")
-    context_red = zmq.Context()
-    socket = context_red.socket(zmq.REQ)
-    socket.connect("tcp://127.0.0.1:"+message)
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://127.0.0.1:"+ respuesta)
+    socket.send_string(p)
 
-    cliente.send_string(p)'''
+    res = socket.recv_string()
+
+    print res
+
+    #message_str = .decode('utf-8')

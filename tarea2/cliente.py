@@ -9,9 +9,9 @@ cliente.connect("tcp://localhost:8000")
 
 while True:
 
-    o = input('Operador: ')
-    a = input('Ingrese el primero numero: ')
-    b = input('Ingrese el segundo numero: ')
+    o = raw_input('Operador: ')
+    a = raw_input('Ingrese el primero numero: ')
+    b = raw_input('Ingrese el segundo numero: ')
 
     '''cliente.send(o)
     cliente.send(a)
@@ -21,6 +21,7 @@ while True:
     print ('concatenacion', p)
 
     cliente.send_string(p)
+    
     resultado = (cliente.recv(1024).decode('utf-8'))
     print ('Resultado:',resultado)
 
@@ -28,11 +29,3 @@ while True:
         cliente.send(b"exit")
         cliente.close()
         exit()
-
-'''for request in range(10):
-    print("Sending request %s …" % request)
-    socket.send(b"Hello")
-
-    #  Get the reply.
-    message = socket.recv()
-    print("Received reply %s [ %s ]" % (request, message))'''
