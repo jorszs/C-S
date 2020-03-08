@@ -20,9 +20,9 @@ directorio = {
 }
 
 
-def adicionar(msm):
-    l = msm.split(",")
-    directorio[l[0]] = {"ip": l[1], "puerto": l[2]}
+def adicionar(l):
+    #l = msm.split(",")
+    directorio[l[1]] = {"ip": l[2], "puerto": l[3]}
 
 # contexto para reply
 
@@ -38,15 +38,24 @@ def server():
                 message = socket.recv_string()
                 print(message)
                 l = message.split(",")
-                print(l)
+                print(type(l[0]))
+                print("cualquier cosa")
+
                 if l[0] == "p":
+                    print("otra cosa")
                     respuesta = int(l[2]) - int(l[3])
                     print(respuesta)
                     respuesta = str(respuesta)
                     socket.send_string(respuesta)
+                else:
 
-                elif l[0] == "r":
-                    pass
+                    msm_c = l[1]  # operador
+                    a = directorio.get(msm_c)
+                    if a == None:
+                        adicionar(l)
+                        print(directorio)
+                    else:
+                        pass
             except:
                 pass
         except:

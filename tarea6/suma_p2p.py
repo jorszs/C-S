@@ -69,7 +69,7 @@ def report_service():
             try:
                 nombre_equipo = str(socket.gethostname())
                 # r para avisar que vamos a reportar servicio
-                msm = "r"+""+"+"+","+nombre_equipo+","+"8002"
+                msm = "r" + "," + "+" + "," + "nombre_equipo" + "," + "8002"
                 r_service.send_string(msm)
                 acuse = suma.recv_string()
                 print(acuse)
@@ -124,6 +124,7 @@ def client():
             #print("no se pudo conectar")
             pass
 
+
         # peticion
         # cliente.Cliente
 '''        print ("hilo cliente (suma) ejecutandose")
@@ -139,5 +140,7 @@ def client():
 # hilo_1.start()
 hilo_c = threading.Thread(target=client)
 hilo_c.start()
+hilo_serv = threading.Thread(target=report_service)
+hilo_serv.start()
 #hilo_s = threading.Thread(target=server)
 # hilo_s.start()
