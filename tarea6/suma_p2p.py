@@ -4,17 +4,7 @@ import socket
 import cliente
 import time
 
-# conexion a resta
-# CLIENT
-# socket cliente (suma)
-
-
-# server
-# socket server (operacion)
-
-'''context = zmq.Context()
-server = context.socket(zmq.REP)
-server.bind("tcp://*:8000") #para las operaciones'''
+# puerto server: 8000
 
 
 # avisar que el servicio esta activo
@@ -24,10 +14,11 @@ server.bind("tcp://*:8000") #para las operaciones'''
 
 # ---------------------------
 
-
+nombre_equipo = str(socket.gethostname())
 # config
 
 directorio = {
+    "+": {"ip": nombre_equipo, "puerto": "8000"}
 }
 
 
@@ -61,7 +52,7 @@ def hilo_op():
 
 def report_service():
     while True:
-        time.sleep(10)
+        time.sleep(2)
         try:
             context = zmq.Context()
             r_service = context.socket(zmq.REQ)
@@ -69,7 +60,7 @@ def report_service():
             try:
                 nombre_equipo = str(socket.gethostname())
                 # r para avisar que vamos a reportar servicio
-                msm = "r" + "," + "+" + "," + "nombre_equipo" + "," + "8002"
+                msm = "r" + "," + "+" + "," + nombre_equipo + "," + "8000"
                 r_service.send_string(msm)
                 acuse = suma.recv_string()
                 print(acuse)
@@ -85,12 +76,33 @@ def server():
         try:
             context_rep = zmq.Context()
             socket = context_rep.socket(zmq.REP)
-            socket.bind("tcp://*:8002")
-            while True:
+            socket.bind("tcp://*:8000")
+            try:
                 message = socket.recv_string()
                 print(message)
+                l = message.split(",")
+                # print(type(l[0]))
+                #print("cualquier cosa")
+
+                if l[0] == "p":
+                    print("otra cosa")
+                    respuesta = int(l[2]) + int(l[3])
+                    print(respuesta)
+                    respuesta = str(respuesta)
+                    socket.send_string(respuesta)
+                else:
+
+                    msm_c = l[1]  # operador
+                    a = directorio.get(msm_c)
+                    if a == None:
+                        adicionar(l)
+                        print(directorio)
+                    else:
+                        pass
+            except:
+                pass
         except:
-            pass
+            pass  # print("ffffff")
 
 
 def client():
@@ -101,7 +113,7 @@ def client():
         b = input('Ingrese el segundo numero: ')
 
         # p porque vamos a hacer una peticion de operacion
-        p = "p" + "," + o + "," + a + "," + b
+        p = "p" + "," + o + "," + a + "," + b + "," + "+"
         try:
 
             context = zmq.Context()
@@ -124,7 +136,6 @@ def client():
             #print("no se pudo conectar")
             pass
 
-
         # peticion
         # cliente.Cliente
 '''        print ("hilo cliente (suma) ejecutandose")
@@ -140,7 +151,9 @@ def client():
 # hilo_1.start()
 hilo_c = threading.Thread(target=client)
 hilo_c.start()
-hilo_serv = threading.Thread(target=report_service)
-hilo_serv.start()
+hilo_servicio = threading.Thread(target=report_service)
+hilo_servicio.start()
+hilo_server = threading.Thread(target=server)
+hilo_server.start()
 #hilo_s = threading.Thread(target=server)
 # hilo_s.start()

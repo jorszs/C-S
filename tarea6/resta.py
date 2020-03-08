@@ -2,21 +2,13 @@ import zmq
 import socket
 import time
 import threading
-'''context = zmq.Context()
-suma = context.socket(zmq.REQ)
-suma.connect("tcp://localhost:8020")'''
 
+# puerto server: 8002
 
-# avisar que el servicio esta activo
-'''nombre_equipo = str(socket.gethostname())
-msm = "-"+","+nombre_equipo+","+"8002"
-suma.send_string(msm)
-acuse = suma.recv_string()
-print (acuse)'''
-
-
+nombre_equipo = str(socket.gethostname())
 # en el directorio se guardaran los servicios activos y donde localizarlos
 directorio = {
+    "-": {"ip": nombre_equipo, "puerto": "8002"}
 }
 
 
@@ -36,24 +28,44 @@ def server():
             socket.bind("tcp://*:8002")
             try:
                 message = socket.recv_string()
-                print(message)
+                # print(message)
                 l = message.split(",")
-                print(type(l[0]))
-                print("cualquier cosa")
 
                 if l[0] == "p":
                     print("otra cosa")
                     respuesta = int(l[2]) - int(l[3])
                     print(respuesta)
                     respuesta = str(respuesta)
-                    socket.send_string(respuesta)
+                    context_respuesta = zmq.Context()
+                    socket_respuesta = context_respuesta.socket(zmq.REQ)
+                    print("------------")
+                    #op = l[4]
+
+                    print(directorio)
+                    a = directorio.get(l[4])
+                    # print(a)
+                    socket_respuesta.connect(
+                        "tcp://" + a['ip'] + ":" + a['puerto'])
+                    socket_respuesta.send_string(respuesta)
+
+                    # buscar el servicio en el directorio propio
+                    # sino: enviar la peticion a otros servidores --
+                    '''msm_c = l[1]  # operador (+,-,*)
+                    a = directorio.get(msm_c)  # puerto del servicio solicitado
+                    b = directorio.get(l[4])
+                    # mandar al cliente el puerto del servicio
+                    if a != None:
+                        context_rep = zmq.Context()
+                        socket = context_rep.socket(zmq.REQ)
+                        socket.connect("tcp://"a["ip"]+":"+a["puerto"])'''
+
                 else:
 
                     msm_c = l[1]  # operador
                     a = directorio.get(msm_c)
                     if a == None:
                         adicionar(l)
-                        print(directorio)
+                        # print(directorio)
                     else:
                         pass
             except:
