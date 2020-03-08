@@ -2,7 +2,8 @@ import zmq
 import socket
 import time
 import threading
-
+import json
+import ast
 # puerto server: 8002
 
 nombre_equipo = str(socket.gethostname())
@@ -44,22 +45,31 @@ def server():
                         context_respuesta = zmq.Context()
                         socket_respuesta = context_respuesta.socket(zmq.REQ)
                         print("------------")
-                        #op = l[4]
 
                         print(directorio)
+                        # traer la seccion de ruta para analizar cual fue el ultimo nodo agregado
+                        # enviar el puerto y el host al ultimo nodo
+                        # eliminar el ultimo nodo de la ruta
                         a = directorio.get(l[4])
                         # print(a)
                         socket_respuesta.connect(
                             "tcp://" + a['ip'] + ":" + a['puerto'])
                         socket_respuesta.send_string(respuesta)
                     else:
-                        # replica la peticion
-                        ruta = {"+": {"id": "localhost", "puerto": "8000"},
-                                "/": {"id": "localhost", "puerto": "8000"}}
 
-                        print("kkkkkkk")
                         yo = "-"
                         cliente = l[4]
+                        ruta_str = l[5] + "," + l[6]  # string de ruta
+
+                        ruta_dic = json.loads(ruta_str)  # diccionario de ruta
+                        print(ruta_dic)
+
+                        ruta_dic["-"] = {"ip": nombre_equipo, "puerto": "8002"}
+                        ruta_str = json.dumps(ruta_dic)
+                        l[5] = ruta_str
+                        l.pop(6)
+                        nuevo_msm = ','.join(l)
+
                         for key in directorio:
                             if key != yo or key != cliente:
                                 print("yolo")
@@ -70,27 +80,7 @@ def server():
                                     zmq.REQ)
                                 socket_replicar.connect(
                                     "tcp://" + info['ip'] + ":" + info['puerto'])
-                                socket_replicar.send_string("hola guapo")
-                            # if key == yo and key == cliente:
-                            #    print("key")
-                            '''info = directorio.get(key)
-                                context_replicar = zmq.Context()
-                                socket_replicar = context_replicar.socket(
-                                    zmq.REQ)
-                                socket_replicar.connect(
-                                    "tcp://" + info['ip'] + ":" + info['puerto'])
-                                socket_replicar.send_string(respuesta)'''
-
-                    # buscar el servicio en el directorio propio
-                    # sino: enviar la peticion a otros servidores --
-                    '''msm_c = l[1]  # operador (+,-,*)
-                    a = directorio.get(msm_c)  # puerto del servicio solicitado
-                    b = directorio.get(l[4])
-                    # mandar al cliente el puerto del servicio
-                    if a != None:
-                        context_rep = zmq.Context()
-                        socket = context_rep.socket(zmq.REQ)
-                        socket.connect("tcp://"a["ip"]+":"+a["puerto"])'''
+                                socket_replicar.send_string(nuevo_msm)
 
                 else:
 

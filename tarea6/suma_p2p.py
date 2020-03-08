@@ -3,6 +3,7 @@ import threading
 import socket
 import cliente
 import time
+import json
 
 # puerto server: 8000
 
@@ -33,28 +34,10 @@ def adicionar(msm):
 # informe de servicio activo
 # peticion de operacion
 
-# condicional if (mensaje[0] == o)
-'''
-
-def hilo_op():
-    while True:
-        message = server.recv_string() #peticion de resta
-        print (type(message))
-        if informe:
-            
-            print("recibido",str(message))
-            socket.send_string("ok")
-            print (message)
-            adicionar(message)
-            print (directorio)
-
-        elif operacion:
-            a + b'''
-
 
 def report_service():
     while True:
-        time.sleep(2)
+
         try:
             context = zmq.Context()
             r_service = context.socket(zmq.REQ)
@@ -70,11 +53,12 @@ def report_service():
                 pass
         except:
             pass
+        time.sleep(10)
 
 
 def server():
     while True:
-        time.sleep(3)
+        time.sleep(6)
         try:
             context_rep = zmq.Context()
             socket = context_rep.socket(zmq.REP)
@@ -101,6 +85,7 @@ def server():
                         print(directorio)
                     else:
                         pass
+                # recibir mensaje de confirmacion (servicio encontrado)
             except:
                 pass
         except:
@@ -114,8 +99,12 @@ def client():
         a = input('Ingrese el primero numero: ')
         b = input('Ingrese el segundo numero: ')
 
+        # generamos el diccionario ruta
+        info = directorio.get("+")
+        ruta = {"+": info}
+        ruta_str = json.dumps(ruta)
         # p porque vamos a hacer una peticion de operacion
-        p = "p" + "," + o + "," + a + "," + b + "," + "+"
+        p = "p" + "," + o + "," + a + "," + b + "," + "+" + "," + ruta_str
 
         if o == "+":
             resultado = int(a) + int(b)
