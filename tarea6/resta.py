@@ -8,7 +8,8 @@ import threading
 nombre_equipo = str(socket.gethostname())
 # en el directorio se guardaran los servicios activos y donde localizarlos
 directorio = {
-    "-": {"ip": nombre_equipo, "puerto": "8002"}
+    "-": {"ip": nombre_equipo, "puerto": "8002"},
+    "*": {"ip": nombre_equipo, "puerto": "8000"}
 }
 
 
@@ -28,25 +29,57 @@ def server():
             socket.bind("tcp://*:8002")
             try:
                 message = socket.recv_string()
-                # print(message)
+                print(message)
                 l = message.split(",")
 
                 if l[0] == "p":
-                    print("otra cosa")
-                    respuesta = int(l[2]) - int(l[3])
-                    print(respuesta)
-                    respuesta = str(respuesta)
-                    context_respuesta = zmq.Context()
-                    socket_respuesta = context_respuesta.socket(zmq.REQ)
-                    print("------------")
-                    #op = l[4]
+                    if l[1] == "-":
+                        # aqui se devuelve enviando el puerto del sevicio hasta llegar a cliente
 
-                    print(directorio)
-                    a = directorio.get(l[4])
-                    # print(a)
-                    socket_respuesta.connect(
-                        "tcp://" + a['ip'] + ":" + a['puerto'])
-                    socket_respuesta.send_string(respuesta)
+                        print("otra cosa")
+                        print(l)
+                        respuesta = int(l[2]) - int(l[3])
+                        print(respuesta)
+                        respuesta = str(respuesta)
+                        context_respuesta = zmq.Context()
+                        socket_respuesta = context_respuesta.socket(zmq.REQ)
+                        print("------------")
+                        #op = l[4]
+
+                        print(directorio)
+                        a = directorio.get(l[4])
+                        # print(a)
+                        socket_respuesta.connect(
+                            "tcp://" + a['ip'] + ":" + a['puerto'])
+                        socket_respuesta.send_string(respuesta)
+                    else:
+                        # replica la peticion
+                        ruta = {"+": {"id": "localhost", "puerto": "8000"},
+                                "/": {"id": "localhost", "puerto": "8000"}}
+
+                        print("kkkkkkk")
+                        yo = "-"
+                        cliente = l[4]
+                        for key in directorio:
+                            if key != yo or key != cliente:
+                                print("yolo")
+                                info = directorio.get(key)
+                                print(info)
+                                context_replicar = zmq.Context()
+                                socket_replicar = context_replicar.socket(
+                                    zmq.REQ)
+                                socket_replicar.connect(
+                                    "tcp://" + info['ip'] + ":" + info['puerto'])
+                                socket_replicar.send_string("hola guapo")
+                            # if key == yo and key == cliente:
+                            #    print("key")
+                            '''info = directorio.get(key)
+                                context_replicar = zmq.Context()
+                                socket_replicar = context_replicar.socket(
+                                    zmq.REQ)
+                                socket_replicar.connect(
+                                    "tcp://" + info['ip'] + ":" + info['puerto'])
+                                socket_replicar.send_string(respuesta)'''
 
                     # buscar el servicio en el directorio propio
                     # sino: enviar la peticion a otros servidores --

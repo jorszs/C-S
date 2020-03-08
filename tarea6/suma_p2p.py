@@ -6,6 +6,8 @@ import time
 
 # puerto server: 8000
 
+# contexto
+#context = zmq.Context()
 
 # avisar que el servicio esta activo
 # i = informar que el servicio esta activo
@@ -114,37 +116,42 @@ def client():
 
         # p porque vamos a hacer una peticion de operacion
         p = "p" + "," + o + "," + a + "," + b + "," + "+"
-        try:
 
-            context = zmq.Context()
-            suma = context.socket(zmq.REQ)
-            suma.connect("tcp://localhost:8002")
-            time.sleep(3)
+        if o == "+":
+            resultado = int(a) + int(b)
+            print(resultado)
+        else:
             try:
-                suma.send_string(p)
-                resultado = suma.recv_string()
-                print(resultado)
-                print("conectando...")
+                print("******")
+                context = zmq.Context()
+                suma = context.socket(zmq.REQ)
+                suma.connect("tcp://localhost:8002")
+                time.sleep(3)
+                try:
+                    suma.send_string(p)
+                    #resultado = suma.recv_string()
+                    # print(resultado)
+                    # print("conectando...")
+                except KeyboardInterrupt:
+                    pass
+                except:
+                    pass
+
             except KeyboardInterrupt:
-                pass
+                print("no se pudo conectar...")
             except:
+                #print("no se pudo conectar")
                 pass
 
-        except KeyboardInterrupt:
-            print("no se pudo conectar...")
-        except:
-            #print("no se pudo conectar")
-            pass
-
-        # peticion
-        # cliente.Cliente
-'''        print ("hilo cliente (suma) ejecutandose")
-        o = input('Operador: ')
-        msm_c = suma.recv_string()
-        print(msm_c)
-        puerto = directorio.get(msm_c)
-        #print("puerto",str(puerto['puerto']))
-        suma.send_string(str(puerto['puerto']))'''
+            # peticion
+            # cliente.Cliente
+    '''        print ("hilo cliente (suma) ejecutandose")
+            o = input('Operador: ')
+            msm_c = suma.recv_string()
+            print(msm_c)
+            puerto = directorio.get(msm_c)
+            #print("puerto",str(puerto['puerto']))
+            suma.send_string(str(puerto['puerto']))'''
 
 
 #hilo_1 = threading.Thread(target=hilo_op)
