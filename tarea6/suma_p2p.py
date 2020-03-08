@@ -13,6 +13,7 @@ import json
 # avisar que el servicio esta activo
 # i = informar que el servicio esta activo
 # p = peticion de alguna operacion
+# s = servicio encontrado (empieza a devolverse en la ruta, avisando que el servicio se encontro)
 
 
 # ---------------------------
@@ -26,7 +27,7 @@ directorio = {
 
 
 def adicionar(msm):
-    l = msm.split(",")
+    l = msm.split("_")
     directorio[l[0]] = {"ip": l[1], "puerto": l[2]}
 
 
@@ -45,7 +46,7 @@ def report_service():
             try:
                 nombre_equipo = str(socket.gethostname())
                 # r para avisar que vamos a reportar servicio
-                msm = "r" + "," + "+" + "," + nombre_equipo + "," + "8000"
+                msm = "r" + "_" + "+" + "_" + nombre_equipo + "_" + "8000"
                 r_service.send_string(msm)
                 acuse = suma.recv_string()
                 print(acuse)
@@ -66,7 +67,7 @@ def server():
             try:
                 message = socket.recv_string()
                 print(message)
-                l = message.split(",")
+                l = message.split("_")
                 # print(type(l[0]))
                 #print("cualquier cosa")
 
@@ -104,7 +105,7 @@ def client():
         ruta = {"+": info}
         ruta_str = json.dumps(ruta)
         # p porque vamos a hacer una peticion de operacion
-        p = "p" + "," + o + "," + a + "," + b + "," + "+" + "," + ruta_str
+        p = "p" + "_" + o + "_" + a + "_" + b + "_" + "+" + "_" + ruta_str
 
         if o == "+":
             resultado = int(a) + int(b)
