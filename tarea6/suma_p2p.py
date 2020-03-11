@@ -7,6 +7,7 @@ import json
 
 # puerto server: 8000
 yo = "+"
+mi_port = "8000"
 # contexto
 #context = zmq.Context()
 
@@ -19,10 +20,15 @@ yo = "+"
 # ---------------------------
 
 nombre_equipo = str(socket.gethostname())
-# config
 
+# se guardan los servicios activos
 directorio = {
     "+": {"ip": nombre_equipo, "puerto": "8000"}
+}
+
+# se guardan los servicios registrados
+registrados = {
+    "-": {"ip": nombre_equipo, "puerto": "8002"},
 }
 
 
@@ -40,13 +46,14 @@ def report_service():
     while True:
 
         try:
+            print(directorio)
             context = zmq.Context()
             r_service = context.socket(zmq.REQ)
             r_service.connect("tcp://localhost:8002")
             try:
                 nombre_equipo = str(socket.gethostname())
                 # r para avisar que vamos a reportar servicio
-                msm = "r" + "_" + "+" + "_" + nombre_equipo + "_" + "8000"
+                msm = "r" + "_" + "+" + "_" + nombre_equipo + "_" + puerto
                 r_service.send_string(msm)
                 acuse = suma.recv_string()
                 print(acuse)
@@ -73,7 +80,7 @@ def server():
                 #print("cualquier cosa")
 
                 if l[0] == "p":
-                    if l[1] == "-":
+                    if l[1] == yo:
                         # aqui se devuelve enviando el puerto del sevicio hasta llegar a cliente
 
                         print(l)
@@ -82,7 +89,7 @@ def server():
                         # se convierte a diccionario
                         ruta_dic = json.loads(ruta)
                         # agrego mi servicio/nodo a la ruta
-                        ruta_dic["-"] = {"id": nombre_equipo, "puerto": "8002"}
+                        ruta_dic[yo] = {"id": nombre_equipo, "puerto": "8002"}
                         keys = []  # se guardaran las keys del diccionario ruta
                         # se extraen todas las keys (para saber cuantos nodos hay en la ruta)
                         for key in ruta_dic:
@@ -117,14 +124,13 @@ def server():
                         socket_respuesta.send_string(nuevo_msm)
                     else:
 
-
                         cliente = l[4]
                         ruta_str = l[5]  # string de ruta
 
                         ruta_dic = json.loads(ruta_str)  # diccionario de ruta
                         print(ruta_dic)
 
-                        ruta_dic["-"] = {"ip": nombre_equipo, "puerto": "8002"}
+                        ruta_dic[yo] = {"ip": nombre_equipo, "puerto": mi_port}
                         ruta_str = json.dumps(ruta_dic)
                         l[5] = ruta_str
 
@@ -226,7 +232,7 @@ def client():
         ruta = {"+": info}
         ruta_str = json.dumps(ruta)
         # p porque vamos a hacer una peticion de operacion
-        p = "p" + "_" + o + "_" + a + "_" + b + "_" + "+" + "_" + ruta_str
+        p = "p" + "_" + o + "_" + a + "_" + b + "_" + yo + "_" + ruta_str
 
         if o == "+":
             resultado = int(a) + int(b)
@@ -253,8 +259,6 @@ def client():
             except:
                 #print("no se pudo conectar")
                 pass
-
-
 
 
 hilo_c = threading.Thread(target=client)

@@ -6,12 +6,20 @@ import json
 import ast
 # puerto server: 8002
 yo = "-"
+mi_port = "8002"
 
 
 nombre_equipo = str(socket.gethostname())
 # en el directorio se guardaran los servicios activos y donde localizarlos
+# se guardan los servicios activos
 directorio = {
-    "-": {"ip": nombre_equipo, "puerto": "8002"},
+    "-": {"ip": nombre_equipo, "puerto": "8002"}
+}
+
+# se guardan los servicios registrados
+registrados = {
+    "+": {"ip": nombre_equipo, "puerto": "8002"},
+    "^": {"ip": nombre_equipo, "puerto": "8003"},
 }
 
 
@@ -19,22 +27,29 @@ def adicionar(l):
     #l = msm.split("_")
     directorio[l[1]] = {"ip": l[2], "puerto": l[3]}
 
+
 def report_service():
     while True:
-
+        print(directorio)
         try:
-            context = zmq.Context()
-            r_service = context.socket(zmq.REQ)
-            r_service.connect("tcp://localhost:8002")
-            try:
-                nombre_equipo = str(socket.gethostname())
-                # r para avisar que vamos a reportar servicio
-                msm = "r" + "_" + "+" + "_" + nombre_equipo + "_" + "8000"
-                r_service.send_string(msm)
-                acuse = suma.recv_string()
-                print(acuse)
-            except:
-                pass
+            # recorrer el directorio y reportar el servicio
+
+            for key in registrados:
+                context = zmq.Context()
+                a = registrados.get(key)
+                puerto = a["puerto"]
+                print("este es el puerto", puerto)
+                r_service = context.socket(zmq.REQ)
+                r_service.connect("tcp://localhost:" + puerto)
+                try:
+                    nombre_equipo = str(socket.gethostname())
+                    # r para avisar que vamos a reportar servicio
+                    msm = "r" + "_" + "-" + "_" + nombre_equipo + "_" + mi_port
+                    r_service.send_string(msm)
+                    acuse = suma.recv_string()
+                    print(acuse)
+                except:
+                    pass
         except:
             pass
         time.sleep(10)
@@ -49,11 +64,11 @@ def client():
         b = input('Ingrese el segundo numero: ')
 
         # generamos el diccionario ruta
-        info = directorio.get("+")
-        ruta = {"+": info}
+        info = directorio.get(yo)
+        ruta = {yo: info}
         ruta_str = json.dumps(ruta)
         # p porque vamos a hacer una peticion de operacion
-        p = "p" + "_" + o + "_" + a + "_" + b + "_" + "+" + "_" + ruta_str
+        p = "p" + "_" + o + "_" + a + "_" + b + "_" + yo + "_" + ruta_str
 
         if o == "+":
             resultado = int(a) + int(b)
@@ -61,25 +76,31 @@ def client():
         else:
             try:
                 print("******")
-                context = zmq.Context()
-                suma = context.socket(zmq.REQ)
-                suma.connect("tcp://localhost:8002")
+
+                for key in directorio:
+                    if key != yo:
+                        a = directorio.get(key)
+                        puerto = a["puerto"]
+                        context = zmq.Context()
+                        resta = context.socket(zmq.REQ)
+                        resta.connect("tcp://localhost:" + puerto)
                 # time.sleep(3)
-                try:
-                    suma.send_string(p)
-                    #resultado = suma.recv_string()
-                    # print(resultado)
-                    # print("conectando...")
-                except KeyboardInterrupt:
-                    pass
-                except:
-                    pass
+                        try:
+                            resta.send_string(p)
+                            #resultado = suma.recv_string()
+                            # print(resultado)
+                            # print("conectando...")
+                        except KeyboardInterrupt:
+                            pass
+                        except:
+                            pass
 
             except KeyboardInterrupt:
                 print("no se pudo conectar...")
             except:
                 #print("no se pudo conectar")
                 pass
+
 
 def server():
     while True:
@@ -94,7 +115,7 @@ def server():
                 l = message.split("_")
 
                 if l[0] == "p":
-                    if l[1] == "-":
+                    if l[1] == yo:
                         # aqui se devuelve enviando el puerto del sevicio hasta llegar a cliente
 
                         print(l)
@@ -103,7 +124,7 @@ def server():
                         # se convierte a diccionario
                         ruta_dic = json.loads(ruta)
                         # agrego mi servicio/nodo a la ruta
-                        ruta_dic["-"] = {"id": nombre_equipo, "puerto": "8002"}
+                        ruta_dic[yo] = {"id": nombre_equipo, "puerto": "8002"}
                         keys = []  # se guardaran las keys del diccionario ruta
                         # se extraen todas las keys (para saber cuantos nodos hay en la ruta)
                         for key in ruta_dic:
@@ -186,10 +207,14 @@ def server():
                         host = aux["id"]
                         port = aux["puerto"]
                         ruta_dic.pop(l[1])
+
+                        l[5] = json.dumps(ruta_dic)
+                        nuevo_msm = '_'.join(l)
+
                         context_servicio = zmq.Context()
                         socket = context_servicio.socket(zmq.REQ)
                         socket.connect("tcp://"+host+":"+port)
-                        socket.send_string(message)
+                        socket.send_string(nuevo_msm)
                     # el servidor recibe conexion directa de
                     elif len(keys) == 1:
                         print("entro correctamente felicitaciones !!!")
@@ -231,6 +256,7 @@ def server():
                 pass
         except:
             pass
+
 
 hilo_c = threading.Thread(target=client)
 hilo_c.start()
