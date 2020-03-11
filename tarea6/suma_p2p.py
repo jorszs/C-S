@@ -256,13 +256,10 @@ def client():
 
 
 
-#hilo_1 = threading.Thread(target=hilo_op)
-# hilo_1.start()
+
 hilo_c = threading.Thread(target=client)
 hilo_c.start()
 hilo_servicio = threading.Thread(target=report_service)
 hilo_servicio.start()
 hilo_server = threading.Thread(target=server)
 hilo_server.start()
-#hilo_s = threading.Thread(target=server)
-# hilo_s.start()
