@@ -16,7 +16,8 @@ directorio = {
 
 # se guardan los servicios registrados
 registrados = {
-    "-": {"ip": nombre_equipo, "puerto": "8002"}
+    "-": {"ip": nombre_equipo, "puerto": "8002"},
+    "/": {"ip": nombre_equipo, "puerto": "8004"}
     # "^": {"ip": nombre_equipo, "puerto": "8003"},
 }
 
@@ -43,7 +44,7 @@ def report_service():
                 try:
                     nombre_equipo = str(socket.gethostname())
                     # r para avisar que vamos a reportar servicio
-                    msm = "r" + "_" + "^" + "_" + nombre_equipo + "_" + "8003"
+                    msm = "r" + "_" + yo + "_" + nombre_equipo + "_" + mi_port
                     r_service.send_string(msm)
                     acuse = suma.recv_string()
                     print(acuse)
@@ -75,19 +76,26 @@ def client():
         else:
             try:
                 print("******")
-                context = zmq.Context()
-                suma = context.socket(zmq.REQ)
-                suma.connect("tcp://localhost:8002")
+
+                for key in directorio:
+                    if key != yo:
+                        a = directorio.get(key)
+                        host = a["ip"]
+                        puerto = a["puerto"]
+                        context = zmq.Context()
+                        resta = context.socket(zmq.REQ)
+                        resta.connect("tcp://"+host+":" + puerto)
                 # time.sleep(3)
-                try:
-                    suma.send_string(p)
-                    #resultado = suma.recv_string()
-                    # print(resultado)
-                    # print("conectando...")
-                except KeyboardInterrupt:
-                    pass
-                except:
-                    pass
+                        try:
+                            print("enviando peticion")
+                            resta.send_string(p)
+                            #resultado = suma.recv_string()
+                            # print(resultado)
+                            # print("conectando...")
+                        except KeyboardInterrupt:
+                            pass
+                        except:
+                            pass
 
             except KeyboardInterrupt:
                 print("no se pudo conectar...")
@@ -160,7 +168,7 @@ def server():
                         ruta_dic = json.loads(ruta_str)  # diccionario de ruta
                         print(ruta_dic)
 
-                        ruta_dic["-"] = {"ip": nombre_equipo, "puerto": "8002"}
+                        ruta_dic[yo] = {"ip": nombre_equipo, "puerto": mi_port}
                         ruta_str = json.dumps(ruta_dic)
                         l[5] = ruta_str
 

@@ -4,16 +4,16 @@ import time
 import threading
 import json
 import ast
-# puerto server: 8002
-yo = "-"
-mi_port = "8002"
+# puerto server: 8004
+yo = "/"
+mi_port = "8004"
 
 
 nombre_equipo = str(socket.gethostname())
 # en el directorio se guardaran los servicios activos y donde localizarlos
 # se guardan los servicios activos
 directorio = {
-    "-": {"ip": nombre_equipo, "puerto": "8002"}
+    "/": {"ip": nombre_equipo, "puerto": "8002"}
 }
 
 # se guardan los servicios registrados
@@ -112,7 +112,7 @@ def server():
         try:
             context_rep = zmq.Context()
             socket = context_rep.socket(zmq.REP)
-            socket.bind("tcp://*:8002")
+            socket.bind("tcp://*:"+mi_port)
             try:
                 message = socket.recv_string()
                 print(message)
@@ -227,7 +227,11 @@ def server():
                     # el servidor recibe conexion directa de
                     elif len(keys) == 1:
                         print("entro correctamente felicitaciones !!!")
-                        respuesta = int(l[2]) - int(l[3])
+                        try:
+                            respuesta = int(l[2]) / int(l[3])
+                        except ZeroDivisionError:
+                            respuesta = "no se puede dividir entre cero"
+                            print(respuesta)
                         print(respuesta)
                         respuesta = "e"+"_" + \
                             l[1]+"_"+l[2]+"_"+l[3]+"_" + \
