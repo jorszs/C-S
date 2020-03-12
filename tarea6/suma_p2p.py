@@ -32,8 +32,8 @@ registrados = {
 }
 
 
-def adicionar(msm):
-    l = msm.split("_")
+def adicionar(l):
+    #l = msm.split("_")
     directorio[l[0]] = {"ip": l[1], "puerto": l[2]}
 
 
@@ -46,14 +46,14 @@ def report_service():
     while True:
 
         try:
-            print(directorio)
+            # print(directorio)
             context = zmq.Context()
             r_service = context.socket(zmq.REQ)
             r_service.connect("tcp://localhost:8002")
             try:
                 nombre_equipo = str(socket.gethostname())
                 # r para avisar que vamos a reportar servicio
-                msm = "r" + "_" + "+" + "_" + nombre_equipo + "_" + puerto
+                msm = "r" + "_" + "+" + "_" + nombre_equipo + "_" + mi_port
                 r_service.send_string(msm)
                 acuse = suma.recv_string()
                 print(acuse)
@@ -72,6 +72,7 @@ def server():
             socket = context_rep.socket(zmq.REP)
             socket.bind("tcp://*:8000")
             try:
+                print("servidor ejecutando...")
                 message = socket.recv_string()
                 print(message)
                 l = message.split("_")
@@ -89,7 +90,7 @@ def server():
                         # se convierte a diccionario
                         ruta_dic = json.loads(ruta)
                         # agrego mi servicio/nodo a la ruta
-                        ruta_dic[yo] = {"id": nombre_equipo, "puerto": "8002"}
+                        ruta_dic[yo] = {"ip": nombre_equipo, "puerto": mi_port}
                         keys = []  # se guardaran las keys del diccionario ruta
                         # se extraen todas las keys (para saber cuantos nodos hay en la ruta)
                         for key in ruta_dic:
@@ -153,6 +154,7 @@ def server():
                     a = directorio.get(msm_c)
                     if a == None:
                         adicionar(l)
+                        print("este es l", l)
                         print(directorio)
                     else:
                         pass
@@ -168,14 +170,16 @@ def server():
                         keys.append(key)
 
                     if len(keys) == 2:
-
+                        print("entrooooooo")
                         # conectarse directamente
                         aux = ruta_dic.get(l[1])  # "-"
                         #print("entro correctamente felicitaciones !!!", aux)
-                        host = aux["id"]
+                        host = aux["ip"]
                         port = aux["puerto"]
-                        ruta_dic.pop(l[1])
+
                         #print("ruta: ", ruta_dic)
+
+                        ruta_dic.pop(l[1])
                         l[5] = json.dumps(ruta_dic)
                         nuevo_msm = '_'.join(l)
 
@@ -183,23 +187,30 @@ def server():
                         context_servicio = zmq.Context()
                         socket = context_servicio.socket(zmq.REQ)
                         socket.connect("tcp://"+host+":"+port)
+
                         socket.send_string(nuevo_msm)
+
                     # el servidor recibe conexion directa de
                     elif len(keys) == 1:
+                        print("respondiendo...")
+                        print(l)
                         respuesta = int(l[2]) + int(l[3])
                         respuesta = "resultado"+"_" + \
                             l[1]+"_"+l[2]+"_"+l[3]+"_" + \
-                            respuesta  # "resultado_-_2_3_1"
+                            str(respuesta)  # "resultado_-_2_3_1"
+                        print(respuesta)
                         aux = ruta_dic.get(l[4])  # "+"
-                        host = aux["id"]
-                        port = aux["puerto"]
+                        print("este es el cliente", aux)
+                        host = aux.get("ip")
+                        port = aux.get("puerto")
+
                         context_servicio = zmq.Context()
                         socket = context_servicio.socket(zmq.REQ)
                         socket.connect("tcp://"+host+":"+port)
-                        socket.send_string(mensaje)
+                        socket.send_string(respuesta)
                     else:
                         aux = ruta_dic.get(keys[-2])  # [+,-,/]
-                        host = aux["id"]
+                        host = aux["ip"]
                         port = aux["puerto"]
                         ruta_dic.pop(keys[-2])  # [+,/]
                         context_servicio = zmq.Context()
