@@ -75,8 +75,11 @@ def client():
         p = "p" + "_" + o + "_" + a + "_" + b + "_" + yo + "_" + ruta_str
 
         if o == yo:
-            resultado = int(a) - int(b)
-            print(resultado)
+            try:
+                respuesta = math.log(int(l[2]), int(l[3]))
+            except:
+                respuesta = "los argumentos estan fuera del dominio"
+
         else:
             try:
                 print("******")

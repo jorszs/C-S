@@ -73,8 +73,10 @@ def client():
         p = "p" + "_" + o + "_" + a + "_" + b + "_" + yo + "_" + ruta_str
 
         if o == yo:
-            resultado = int(a) - int(b)
-            print(resultado)
+            try:
+                resultado = int(a) / int(b)
+            except ZeroDivisionError:
+                resultado = "no se pudo dividir por cero"
         else:
             try:
                 print("******")
