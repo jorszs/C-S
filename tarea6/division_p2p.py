@@ -13,12 +13,12 @@ nombre_equipo = str(socket.gethostname())
 # en el directorio se guardaran los servicios activos y donde localizarlos
 # se guardan los servicios activos
 directorio = {
-    "/": {"ip": nombre_equipo, "puerto": "8002"}
+    "/": {"ip": nombre_equipo, "puerto": "8004"}
 }
 
 # se guardan los servicios registrados
 registrados = {
-    "^": {"ip": nombre_equipo, "puerto": "8003"},
+    "^": {"ip": nombre_equipo, "puerto": "8003"}
 }
 
 
@@ -46,7 +46,7 @@ def report_service():
                     r_service.connect("tcp://localhost:" + puerto)
                     nombre_equipo = str(socket.gethostname())
                     # r para avisar que vamos a reportar servicio
-                    msm = "r" + "_" + "-" + "_" + nombre_equipo + "_" + mi_port
+                    msm = "r" + "_" + yo + "_" + nombre_equipo + "_" + mi_port
                     r_service.send_string(msm)
                     #acuse = suma.recv_string()
                     # print(acuse)
@@ -78,6 +78,7 @@ def client():
         else:
             try:
                 print("******")
+                print(directorio)
 
                 for key in directorio:
                     if key != yo:
@@ -108,14 +109,15 @@ def client():
 
 def server():
     while True:
+        print("corriendo servidor...")
         # time.sleep(2)
         try:
             context_rep = zmq.Context()
             socket = context_rep.socket(zmq.REP)
-            socket.bind("tcp://*:"+mi_port)
+            socket.bind("tcp://*:8004")
             try:
                 message = socket.recv_string()
-                print(message)
+                print("mensaje recibido", message)
                 l = message.split("_")
 
                 if l[0] == "p":
@@ -178,8 +180,14 @@ def server():
 
                         nuevo_msm = '_'.join(l)
 
+                        keys = []  # se guardaran las keys del diccionario ruta
+                        # se extraen todas las keys (para saber cuantos nodos hay en la ruta)
+                        for key in ruta_dic:
+                            keys.append(key)
+
+                        # tenemos que verificar no replicar el mensaje a los nodos que ya estan dentro de ruta
                         for key in directorio:
-                            if key != yo or key != cliente:
+                            if key != yo and key != cliente and key not in keys:
                                 info = directorio.get(key)
                                 print(info)
                                 context_replicar = zmq.Context()
@@ -189,12 +197,12 @@ def server():
                                     "tcp://" + info['ip'] + ":" + info['puerto'])
                                 socket_replicar.send_string(nuevo_msm)
                 elif l[0] == "r":
-
+                    print("entro_r")
                     msm_c = l[1]  # operador
                     a = directorio.get(msm_c)
                     if a == None:
                         adicionar(l)
-                        # print(directorio)
+                        print("directorio_r", directorio)
                     else:
                         pass
                 # recibir mensaje de confirmacion (servicio encontrado)

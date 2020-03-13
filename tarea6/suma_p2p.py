@@ -137,8 +137,14 @@ def server():
 
                         nuevo_msm = '_'.join(l)
 
+                        keys = []  # se guardaran las keys del diccionario ruta
+                        # se extraen todas las keys (para saber cuantos nodos hay en la ruta)
+                        for key in ruta_dic:
+                            keys.append(key)
+
+                        # tenemos que verificar no replicar el mensaje a los nodos que ya estan dentro de ruta
                         for key in directorio:
-                            if key != yo or key != cliente:
+                            if key != yo and key != cliente and key not in keys:
                                 print("yolo")
                                 info = directorio.get(key)
                                 print(info)
