@@ -13,5 +13,5 @@ while True:
     b = input('Ingrese el segundo numero: ')
     p =  o + ',' + a + ',' + b
     c = zerorpc.Client()
-    c.connect("http://localhost:8000")
-    #print (c.hol(p))
+    c.connect("tcp://localhost:8000")
+    print (c.hol(p))

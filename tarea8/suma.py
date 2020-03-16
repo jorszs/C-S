@@ -9,5 +9,5 @@ class funciones_rpc:
         return respuesta
 
 s = zerorpc.Server(funciones_rpc())
-s.bind("http://localhost:8000")
+s.bind("tcp://*:8001")
 s.run()
