@@ -210,7 +210,7 @@ def server():
                     elif len(keys) == 1:
                         print("respondiendo...")
                         print(l)
-                        respuesta = int(l[2]) + int(l[3])
+                        respuesta = int(l[2]) - int(l[3])
                         respuesta = "resultado"+"_" + \
                             l[1]+"_"+l[2]+"_"+l[3]+"_" + \
                             str(respuesta)  # "resultado_-_2_3_1"

@@ -5,8 +5,8 @@ import time
 import json
 
 # puerto server: 8000
-yo = "*"
-mi_port = "8002"
+yo = "/"
+mi_port = "8003"
 # contexto
 #context = zmq.Context()
 
@@ -200,7 +200,11 @@ def server():
                     elif len(keys) == 1:
                         print("respondiendo...")
                         print(l)
-                        respuesta = int(l[2]) * int(l[3])
+                        try:
+                            respuesta = int(l[2]) / int(l[3])
+                        except ZeroDivisionError:
+                            respuesta = "no se puede dividir entre cero"
+                            print(respuesta)
                         respuesta = "resultado"+"_" + \
                             l[1]+"_"+l[2]+"_"+l[3]+"_" + \
                             str(respuesta)  # "resultado_-_2_3_1"
@@ -252,8 +256,11 @@ def client():
         p = "p" + "_" + o + "_" + a + "_" + b + "_" + yo + "_" + ruta_str
 
         if o == yo:
-            resultado = int(a) * int(b)
-            print(resultado)
+            try:
+                respuesta = int(l[2]) / int(l[3])
+            except ZeroDivisionError:
+                respuesta = "no se puede dividir entre cero"
+                print(respuesta)
         else:
             try:
                 print("******")
