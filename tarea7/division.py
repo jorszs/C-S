@@ -22,7 +22,7 @@ nombre_equipo = str(socket.gethostname())
 
 # se guardan los servicios activos
 directorio = {
-    "*": {"ip": nombre_equipo, "puerto": mi_port}
+    "/": {"ip": nombre_equipo, "puerto": mi_port}
 }
 
 # se guardan los servicios registrados
@@ -257,7 +257,8 @@ def client():
 
         if o == yo:
             try:
-                respuesta = int(l[2]) / int(l[3])
+                respuesta = int(a) / int(b)
+                print(respuesta)
             except ZeroDivisionError:
                 respuesta = "no se puede dividir entre cero"
                 print(respuesta)

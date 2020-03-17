@@ -27,7 +27,7 @@ registrados = {
 # diccionario de servidores
 servers = {
     "s1": {"ip": nombre_equipo, "puerto": "8050"},
-    # "s3": {"ip": nombre_equipo, "puerto": "8052"}
+    "s3": {"ip": nombre_equipo, "puerto": "8052"}
 }
 
 # diccionario de servicios
@@ -163,6 +163,7 @@ def server():
                         # tenemos que verificar no replicar el mensaje a los nodos que ya estan dentro de ruta
                         for key in directorio:
                             if key != yo and key != cliente and key not in keys:
+                                print("replicando")
                                 info = directorio.get(key)
                                 print("replicando a nodo:", info)
                                 context_replicar = zmq.Context()
@@ -174,7 +175,7 @@ def server():
                 elif l[0] == "r":
 
                     msm_c = l[1]  # operador
-                    a = directorio.get(msm_c)
+                    a = servicios.get(msm_c)
                     if a == None:
                         adicionar(l)
                         # print(directorio)

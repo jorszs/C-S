@@ -27,7 +27,7 @@ registrados = {
 # diccionario de servidores
 servers = {
     "s2": {"ip": nombre_equipo, "puerto": "8051"},
-    # "s3": {"ip": nombre_equipo, "puerto": "8052"}
+    "s3": {"ip": nombre_equipo, "puerto": "8052"}
 }
 
 # diccionario de servicios
@@ -95,7 +95,7 @@ def server():
             socket.bind("tcp://*:"+mi_port)
             try:
                 message = socket.recv_string()
-                print("mensaje recibido", message)
+                print("mensaje recibido", servicios)
                 l = message.split("_")
 
                 if l[0] == "p":
@@ -179,7 +179,7 @@ def server():
                 elif l[0] == "r":
 
                     msm_c = l[1]  # operador
-                    a = directorio.get(msm_c)
+                    a = servicios.get(msm_c)
                     if a == None:
                         adicionar(l)
                         # print(directorio)

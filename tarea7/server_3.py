@@ -11,7 +11,7 @@ mi_port = "8052"
 nombre_equipo = str(socket.gethostname())
 # en el directorio se guardaran los servicios activos y donde localizarlos
 directorio = {
-    "^": {"ip": nombre_equipo, "puerto": "8003"},
+    "log": {"ip": nombre_equipo, "puerto": "8004"},
 }
 
 # se guardan los servicios registrados
@@ -32,12 +32,13 @@ servers = {
 
 # diccionario de servicios
 servicios = {
+    # "^": {"ip": nombre_equipo, "puerto": "8005"}
 }
 
 
 def adicionar(l):
     #print("agregando servicio")
-    servicios[l[1]] = {"ip": l[2], "puerto": l[3]}
+    servicios[str(l[1])] = {"ip": l[2], "puerto": l[3]}
     print(servicios)
 
 
@@ -91,6 +92,7 @@ def server():
             try:
                 message = socket.recv_string()
                 print("mensaje recibido", message)
+                print("servicios: ", servicios)
                 l = message.split("_")
 
                 if l[0] == "p":
@@ -172,12 +174,14 @@ def server():
                                     "tcp://" + info['ip'] + ":" + info['puerto'])
                                 socket_replicar.send_string(nuevo_msm)
                 elif l[0] == "r":
-
+                    print("agregando")
                     msm_c = l[1]  # operador
-                    a = directorio.get(msm_c)
+                    #print("agregando", type(msm_c))
+                    a = servicios.get(msm_c)
+                    print(a)
                     if a == None:
                         adicionar(l)
-                        # print(directorio)
+                        print("agregado")
                     else:
                         pass
                 elif l[0] == "rs":
