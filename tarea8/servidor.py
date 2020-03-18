@@ -5,7 +5,7 @@ directorio = {
     '-': '8002',
     '*': '8003',
     '/': '8004',
-    '^': '8005',
+    '**': '8005',
     'log': '8006'
 }
 
@@ -25,7 +25,7 @@ class dir_rpc:
             c = zerorpc.Client()
             c.connect("tcp://localhost:"+puerto)
             # traerme los nombres de las operaciones
-            respuesta = c.suma(p)
+            respuesta = c.op(p)
             return (respuesta)
 
 
