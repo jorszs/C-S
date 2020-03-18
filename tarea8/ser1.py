@@ -1,30 +1,33 @@
 import zerorpc
 
 directorio = {
-    '+':'8001',
-    '-':'8002',
-    '*':'8003',
-    '/':'8004',
-    '^':'8005',
-    'log':'8006'
+    '+': '8001',
+    '-': '8002',
+    '*': '8003',
+    '/': '8004',
+    '^': '8005',
+    'log': '8006'
 }
 
 
-
 class dir_rpc:
-    def hol(self,p):
+    def hol(self, p):
         l = p.split(",")
-        print (p)
+        print(p)
         operador = l[0]
         puerto = directorio.get(operador)
-        print (puerto)
+        print(puerto)
         if puerto == None:
-            print ("el operador no se relaciona a alguna operacion guardada")
+            print("el operador no se relaciona a alguna operacion guardada")
         else:
-            print ("estableciendo conexion")
+            print("estableciendo conexion")
+            # return "hola"
             c = zerorpc.Client()
-            c.connect(("localhost" + puerto))
+            c.connect("tcp://localhost:"+puerto)
+            # traerme los nombres de las operaciones
+            respuesta = c.suma(p)
             return (respuesta)
+
 
 s = zerorpc.Server(dir_rpc())
 s.bind("tcp://*:8000")
