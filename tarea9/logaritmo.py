@@ -12,7 +12,7 @@ server = "8000"
 
 class funciones_rpc:
     def op(self, p):
-        print("suma")
+        print("logaritmo")
         l = p.split(",")
         try:
             respuesta = math.log(int(l[1]), int(l[2]))
