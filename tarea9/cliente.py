@@ -11,12 +11,13 @@ while True:
     o = input('Ingrese el operando: ')
     c = zerorpc.Client()
     c.connect("tcp://localhost:8000")
-    puerto = c.pet(o)
-    print(type(puerto))
+    info = c.pet(o)
+    host = info["ip"]
+    puerto = info["puerto"]
     a = input('Ingrese el primer numero: ')
     b = input('Ingrese el segundo numero: ')
     p = o + ',' + a + ',' + b
 
     c_o = zerorpc.Client()
-    c_o.connect("tcp://localhost:"+puerto)
+    c_o.connect("tcp://"+host+":"+puerto)
     print(c_o.op(p))

@@ -3,9 +3,9 @@ import platform
 import time
 import threading
 # constantes
-yo = "+"
+yo = "*"
 hostname = platform.uname()[1]
-puerto = "8001"
+puerto = "8003"
 server = "8000"
 
 
@@ -13,7 +13,7 @@ class funciones_rpc:
     def op(self, p):
         print("suma")
         l = p.split(",")
-        respuesta = int(l[1]) + int(l[2])
+        respuesta = int(l[1]) * int(l[2])
         print(respuesta)
         respuesta = str(respuesta)
         return respuesta

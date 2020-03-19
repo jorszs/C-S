@@ -2,10 +2,11 @@ import zerorpc
 import platform
 import time
 import threading
+import math
 # constantes
-yo = "+"
+yo = "log"
 hostname = platform.uname()[1]
-puerto = "8001"
+puerto = "8006"
 server = "8000"
 
 
@@ -13,7 +14,10 @@ class funciones_rpc:
     def op(self, p):
         print("suma")
         l = p.split(",")
-        respuesta = int(l[1]) + int(l[2])
+        try:
+            respuesta = math.log(int(l[1]), int(l[2]))
+        except ZeroDivisionError:
+            respuesta = "no se puede dividir entre cero"
         print(respuesta)
         respuesta = str(respuesta)
         return respuesta

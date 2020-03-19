@@ -1,13 +1,16 @@
 import zerorpc
+import threading
 
 directorio = {
-    '+': '8001',
-    '-': '8002',
-    '*': '8003',
-    '/': '8004',
-    '**': '8005',
-    'log': '8006'
 }
+
+
+def adicionar(l):
+    info = directorio.get(l[0])
+    if info == None:
+        directorio[l[0]] = {"ip": l[1], "puerto": l[2]}
+    else:
+        pass
 
 
 class dir_rpc:
@@ -25,14 +28,11 @@ class dir_rpc:
             # retornar el puerto del servicio encontrado
             print("estableciendo conexion")
             return (puerto)
-            # return "hola"
-            #c = zerorpc.Client()
-            # c.connect("tcp://localhost:"+puerto)
-            # traerme los nombres de las operaciones
-            #respuesta = c.op(p)
 
     def report(self, p):
-        pass
+        print(type(p))
+        adicionar(p)
+        print(directorio)
 
 
 s = zerorpc.Server(dir_rpc())
