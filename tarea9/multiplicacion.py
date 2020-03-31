@@ -11,7 +11,7 @@ server = "8000"
 
 class funciones_rpc:
     def op(self, p):
-        print("suma")
+        print("multiplicacion")
         l = p.split(",")
         respuesta = int(l[1]) * int(l[2])
         print(respuesta)
