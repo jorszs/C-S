@@ -1,0 +1,2 @@
+import info
+a = "holaaaa"

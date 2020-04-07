@@ -29,7 +29,7 @@ def importCancion_eyed3(path, nombre, extencion):
     }
     # print(songfield.function.filename)
     print(meta)
-    # return meta
+    return meta
 
 
 #importCancion_eyed3(path, nombre, extencion)
