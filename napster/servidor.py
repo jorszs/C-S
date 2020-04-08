@@ -13,14 +13,6 @@ cancion = []
 
 
 class dir_rpc:
-    def pet(self, p):
-        # print(p)
-        print(sys.getsizeof(p))
-        cancion.append(p)
-        archivo = open("cancion.mp3", "wb")
-        archivo.write(p)
-        archivo.close()
-        print("recibido")
 
     def searchSong(self, req):
         print("buscando cancion")
@@ -37,8 +29,64 @@ class dir_rpc:
             if(x["servidores"]):
                 # print(x["servidores"])
                 return x["servidores"], x["tamaño"]
-            # return x["servidores"]
-        #clients = db.getCollection('canciones').find({})
+
+    def reportSongs(self, client_songs):
+        print("2-guardando cancion")
+        onServers = False
+        servidores = None
+        puerto = 27017
+        mongoClient = MongoClient("localhost", puerto)
+        db = mongoClient.napster
+        collection_canciones = db.canciones
+        print("3-coleccion importada")
+        # por cada cancion del cliente buscar si la cancion ya esta en la base de datos
+        # con ese cliente, si no esta entonces agregarla
+        songs = client_songs["songs"]
+        for i in songs:
+            titulo = i["titulo"]
+            print("4-", titulo, type(titulo))
+            song = None
+            song = db.canciones.find({"titulo": titulo})
+            song_found = [song]
+            for x in song:
+                print("cancion: ", x)
+                song_found.append(x)
+                servidores = x["servidores"]
+            if(len(song_found) == 2):
+                print("5-cancion encontrada ", song)
+
+                if servidores:
+                    for i in servidores:
+                        print("6-buscando servidores",)
+                        if (i["ip"] == client_songs["ip"] and i["port"] == client_songs["port"]):
+                            print("match con servidor")
+                            onServers = True
+
+                if onServers == False:
+                    # el usuario no esta en la lista de servidores entonces lo agrego a la lista servidores en la cancion encontrada en la bd
+                    print("7-actualizando", song)
+                    if(len(song_found) == 2):
+                        cancion = song_found[1]
+                        print("7.5-cancion", cancion)
+                        print("7.6-titulo", cancion["titulo"])
+                        song_title = cancion["titulo"]
+                        result = db.canciones.update_one({"titulo": song_title}, {
+                            '$push': {"servidores": {"ip": "localhost", "port": "7000"}}})
+                        result.matched_count
+                    else:
+                        pass
+            else:
+                # agregar nueva cancion
+                print("agregando nueva cancion")
+                new_song = {
+                    "titulo": i["titulo"],
+                    "artista": i["artista"],
+                    "album": i["album"],
+                    "tamaño": i["tamaño"],
+                    "servidores": [{"ip": client_songs["ip"], "port":client_songs["port"]}]
+                }
+
+                new_s = db.canciones.insert_one(new_song)
 
 
 s = zerorpc.Server(dir_rpc())
