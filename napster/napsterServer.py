@@ -9,6 +9,7 @@ import sys
 from pymongo import MongoClient
 
 cancion = []
+path = ""
 
 
 class napsterServer:
@@ -22,7 +23,8 @@ class napsterServer:
         print("size: "+str(size_song)+"\nstart: " +
               str(start)+"\nend: "+str(end)+"\npart: "+str(part))
 
-        url = "./src/songs/"+name_song+".mp3"
+        print("\n\n--------------------path: ", path)
+        url = path+name_song+".mp3"
         archivo = open(url, "rb+")
         archivo.seek(start)
         song = archivo.read(end)

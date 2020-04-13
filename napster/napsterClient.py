@@ -14,41 +14,50 @@ import threading
 import eyed3
 from src.utils.import_cancion import importar_cancion
 
-path = "./src/songs"
+'''path = "./src/songs"
 ip = "localhost"
 port = "8011"
 
-servers = [{"ip": "localhost", "port": "8000"}]
+servers = [{"ip": "localhost", "port": "8000"}]'''
 # clienteNapster
 # TO DO: hacer peticiones(cancion,artista,album)
 #       recibir ip y puerto
 #       conectarse y recibir con un ciclo las partes de las canciones
 
 
-def ClientNapster():
-    reportSongsToServer()
-    name_song = menu()
-    if name_song:
-        servers, size_song = reqSong(name_song)
-        print("servidores: ", servers)
-        print("tamaño: ", size_song)
-        # TO DO: conectarse a todos los servidores que tienen la cancion
-        song_files_list = conectToServersThreads(name_song, servers, size_song)
-        song_files_list.sort(key=lambda dict: dict["id"])
-        if(song_files_list):
-            print("yeeeahh")
-            # TO DO: guardar el archivo en mi directorio /src/songs
-            archivo = open("./src/songs/cancion1.mp3", "wb")
-            archivo.seek(0)
+def ClientNapster(path, ip, port, servers):
+    while True:
+        reportSongsToServer(path, ip, port, servers)
+        name_song = menu()
+        if name_song:
+            servers, size_song = reqSong(name_song, servers)
+            print("servidores: ", servers)
+            print("tamaño: ", size_song)
+            # TO DO: conectarse a todos los servidores que tienen la cancion
+            song_files_list = conectToServersThreads(
+                name_song, servers, size_song)
+            song_files_list.sort(key=lambda dict: dict["id"])
+            if(song_files_list):
+                print("yeeeahh")
+                # TO DO: guardar el archivo en mi directorio /src/songs
+                archivo = open(path + name_song + ".mp3", "wb")
+                archivo.seek(0)
 
-            for i in song_files_list:
-                archivo.write(i["song"])
-    else:
-        pass
+                for i in song_files_list:
+                    archivo.write(i["song"])
+
+                # reproducir cancion
+                url = path + name_song + ".mp3"
+                url_song = os.path.abspath(url)
+                os.startfile(url_song)
+            else:
+                pass
+        else:
+            pass
 
 
 # buscar y enviar reporte de canciones al servidor principal
-def reportSongsToServer():
+def reportSongsToServer(path, ip, port, servers):
     list_of_songs = seek_songs_of_folder(path)
     client_songs = {
         "ip": ip,
@@ -56,9 +65,14 @@ def reportSongsToServer():
         "songs": list_of_songs
     }
 
-    cliente = zerorpc.Client()
-    cliente.connect("tcp://"+servers[0]["ip"]+":"+servers[0]["port"])
-    cliente.reportSongs(client_songs)
+    # TO DO: hacer un try conectandose a los servidores hasta que se haga conexion con alguno
+    for server in servers:
+        try:
+            cliente = zerorpc.Client()
+            cliente.connect("tcp://"+server["ip"]+":"+servers["port"])
+            cliente.reportSongs(client_songs)
+        except:
+            pass
 
 
 def seek_songs_of_folder(path):
@@ -166,17 +180,23 @@ def conectToServersThreads(name_song, list_servers, size_song):
     return list_of_parts
 
 
-def reqSong(cancion):
-    c = zerorpc.Client()
-    c.connect("tcp://localhost:8000")
-    return c.searchSong(cancion)
+def reqSong(cancion, servers):
+    for server in servers:
+        try:
+            c = zerorpc.Client()
+            c.connect("tcp://localhost:"+server["port"])
+            servs, tamaño = c.searchSong(cancion)
+            if servs:
+                return servs, tamaño
+        except:
+            pass
 
 
 # ejecutar el cliente y el servidor en dos hilos diferentes
-def executeClienteAndServer():
-    client = threading.Thread(target=ClientNapster)
-    client.start()
+# def executeClientAndServer():
+###    client = threading.Thread(target=ClientNapster)
+# client.start()
 
 
-executeClienteAndServer()
+# executeClientAndServer()
 # enviar_cancion(cancion, tamaño)
