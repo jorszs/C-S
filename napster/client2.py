@@ -19,7 +19,7 @@ class napsterServer:
         end = int(part * (x + 1))
         start = int(end - part)
 
-        print("size: "+size_song+"\nstart: " +
+        print("size: "+str(size_song)+"\nstart: " +
               str(start)+"\nend: "+str(end)+"\npart: "+str(part))
 
         url = "./src/songs/"+name_song+".mp3"

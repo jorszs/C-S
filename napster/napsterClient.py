@@ -16,7 +16,7 @@ from src.utils.import_cancion import importar_cancion
 
 path = "./src/songs"
 ip = "localhost"
-port = "8013"
+port = "8011"
 
 servers = [{"ip": "localhost", "port": "8000"}]
 # clienteNapster
