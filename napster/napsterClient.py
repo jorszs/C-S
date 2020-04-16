@@ -68,10 +68,19 @@ def reportSongsToServer(path, ip, port, servers):
     # TO DO: hacer un try conectandose a los servidores hasta que se haga conexion con alguno
     for server in servers:
         try:
+            print("report song. servidor: ", server)
+            ip = server["ip"]
+            port = server["port"]
+            #print("ip", type(server["ip"]))
+            #print("port", type(server["port"]))
             cliente = zerorpc.Client()
-            cliente.connect("tcp://"+server["ip"]+":"+servers["port"])
+
+            url = "tcp://"+ip+":"+port
+            #print("url: ", url)
+            cliente.connect(url)
             cliente.reportSongs(client_songs)
         except:
+            print("error al conectar con servidor al reportar canciones")
             pass
 
 
