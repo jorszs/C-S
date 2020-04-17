@@ -45,6 +45,8 @@ def ClientNapster(path, ip, port, servers):
         elif opcion == "3":
             if parametro_de_busqueda:
                 print("busqueda por artista")
+                param = "artista"
+                seekAndDowloand(param, parametro_de_busqueda, servers, path)
 
 
 def seekAndDowloand(param, parametro_de_busqueda, servers, path):

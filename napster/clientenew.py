@@ -2,7 +2,7 @@ import napsterServer
 import napsterClient
 import threading
 
-port = "8010"
+port = "8020"
 path = "./src/songs2/"
 # server
 
