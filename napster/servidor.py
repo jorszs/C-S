@@ -14,21 +14,29 @@ cancion = []
 
 class dir_rpc:
 
-    def searchSong(self, req):
+    def searchSong(self, req, parametro):
         print("buscando cancion")
         # TO DO: buscar en la base de datos
         #        devolver lista de usuarios que tienen la cancion
+        # parametro puede ser titulo,artista,album
         puerto = 27017
         mongoClient = MongoClient("localhost", puerto)
         db = mongoClient.napster
 
         collection = db.canciones
-        cursor = collection.find({"titulo": req})
+        cursor = collection.find({parametro: req})
 
+        list_songs_found = []
         for x in cursor:
             if(x["servidores"]):
                 # print(x["servidores"])
-                return x["servidores"], x["tamaño"]
+                list_songs_found.append({
+                    "titulo": x["titulo"],
+                    "tamaño": x["tamaño"],
+                    "servidores": x["servidores"]
+                })
+                # return x["servidores"], x["tamaño"], x["titulo"]
+        return list_songs_found
 
     def reportSongs(self, client_songs):
         print("2-guardando cancion")
@@ -71,7 +79,7 @@ class dir_rpc:
                         print("7.6-titulo", cancion["titulo"])
                         song_title = cancion["titulo"]
                         result = db.canciones.update_one({"titulo": song_title}, {
-                            '$push': {"servidores": {"ip": "localhost", "port": "7000"}}})
+                            '$push': {"servidores": {"ip": client_songs["ip"], "port": client_songs["port"]}}})
                         result.matched_count
                     else:
                         pass

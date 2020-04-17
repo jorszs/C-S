@@ -28,35 +28,66 @@ servers = [{"ip": "localhost", "port": "8000"}]'''
 def ClientNapster(path, ip, port, servers):
     while True:
         reportSongsToServer(path, ip, port, servers)
-        name_song = menu()
-        if name_song:
-            servers, size_song = reqSong(name_song, servers)
-            print("servidores: ", servers)
-            print("tamaño: ", size_song)
-            # TO DO: conectarse a todos los servidores que tienen la cancion
-            song_files_list = conectToServersThreads(
-                name_song, servers, size_song)
-            song_files_list.sort(key=lambda dict: dict["id"])
-            if(song_files_list):
-                print("yeeeahh")
-                # TO DO: guardar el archivo en mi directorio /src/songs
-                archivo = open(path + name_song + ".mp3", "wb")
-                archivo.seek(0)
+        opcion, parametro_de_busqueda = menu()
+        print("opcion: ", opcion)
+        if opcion == "1":
+            if parametro_de_busqueda:
+                param = "titulo"
+                print("buscando por titulo.")
+                # server_list almacena los clientes que tienen la cancion
+                seekAndDowloand(param, parametro_de_busqueda, servers, path)
+        elif opcion == "2":
+            if parametro_de_busqueda:
+                print("busqueda por album")
+                param = "album"
+                # busqueda y descarga
+                seekAndDowloand(param, parametro_de_busqueda, servers, path)
+        elif opcion == "3":
+            if parametro_de_busqueda:
+                print("busqueda por artista")
+                param = "artista"
+                seekAndDowloand(param, parametro_de_busqueda, servers, path)
 
-                for i in song_files_list:
-                    archivo.write(i["song"])
 
-                # reproducir cancion
-                url = path + name_song + ".mp3"
-                url_song = os.path.abspath(url)
-                os.startfile(url_song)
-            else:
-                pass
+def seekAndDowloand(param, parametro_de_busqueda, servers, path):
+    # server_list almacena los clientes que tienen la cancion
+    # servers_list, size_song, name_song = reqParam(  # reqSong()
+    list_songs_found = reqParam(
+        parametro_de_busqueda, servers, param)
+
+    # para cada cancion en la lista de canciones encontradas
+    # encontrar y descargar
+    print("canciones encontradas: ", len(list_songs_found))
+    for song in list_songs_found:
+        name_song = song["titulo"]
+        size_song = song["tamaño"]
+        servers_list = song["servidores"]
+        print("servidores: ", servers_list)
+        print("tamaño: ", size_song)
+        # TO DO: conectarse a todos los servidores que tienen la cancion
+        song_files_list = conectToServersThreads(
+            name_song, servers_list, size_song)
+        song_files_list.sort(key=lambda dict: dict["id"])
+        if(song_files_list):
+            print("yeeeahh")
+            # TO DO: guardar el archivo en mi directorio /src/songs
+            archivo = open(path + name_song + ".mp3", "wb")
+            archivo.seek(0)
+
+            for i in song_files_list:
+                archivo.write(i["song"])
+
+            # reproducir cancion
+            url = path + name_song + ".mp3"
+            url_song = os.path.abspath(url)
+            os.startfile(url_song)
         else:
+            print("no se descargo la cancion")
             pass
 
-
 # buscar y enviar reporte de canciones al servidor principal
+
+
 def reportSongsToServer(path, ip, port, servers):
     list_of_songs = seek_songs_of_folder(path)
     client_songs = {
@@ -68,10 +99,19 @@ def reportSongsToServer(path, ip, port, servers):
     # TO DO: hacer un try conectandose a los servidores hasta que se haga conexion con alguno
     for server in servers:
         try:
+            print("report song. servidor: ", server)
+            ip = server["ip"]
+            port = server["port"]
+            #print("ip", type(server["ip"]))
+            #print("port", type(server["port"]))
             cliente = zerorpc.Client()
-            cliente.connect("tcp://"+server["ip"]+":"+servers["port"])
+
+            url = "tcp://"+ip+":"+port
+            #print("url: ", url)
+            cliente.connect(url)
             cliente.reportSongs(client_songs)
         except:
+            print("error al conectar con servidor al reportar canciones")
             pass
 
 
@@ -118,18 +158,18 @@ def menu():
         filter = input("Digite la opcion de busqueda: ")
         if(filter == "1"):
             song = input("\ncual es el nombre de la cancion: ")
-            return song
+            return filter, song
         elif (filter == "2"):
             album = input("\ncual es el album de la cancion: ")
-            return album
+            return filter, album
         elif (filter == "3"):
-            artista = input("\ncual es el album de la cancion: ")
-            return artista
+            artista = input("\ncual es el artista de la cancion: ")
+            return filter, artista
 
 # descargar cancion de clientes secuencialmente
 
 
-def conectToServers(name_song, list_servers, size_song):
+def conectToServers(parametro_de_busqueda, list_servers, size_song):
     # pedir cancion al servidor
     x = 0
     list_of_parts = []
@@ -141,10 +181,11 @@ def conectToServers(name_song, list_servers, size_song):
         print("url: ", url)
         context = zerorpc.Client()
         context.connect(url)
-        song_part = context.download(name_song, size_song, parts, x)
+        song_part = context.download(
+            parametro_de_busqueda, size_song, parts, x)
         list_of_parts.append(song_part)
         x = x+1
-
+    print("devolviendo parte de la cancion")
     return list_of_parts
 
 
@@ -163,7 +204,8 @@ def conectToServersThreads(name_song, list_servers, size_song):
         context = zerorpc.Client()
         context.connect(url)
 
-        song_part = context.download(name_song, size_song, parts, x)
+        song_part = context.download(
+            name_song, size_song, parts, x)
         list_of_parts.append({"id": x, "song": song_part})
 
     for i in list_servers:
@@ -185,12 +227,29 @@ def reqSong(cancion, servers):
         try:
             c = zerorpc.Client()
             c.connect("tcp://localhost:"+server["port"])
-            servs, tamaño = c.searchSong(cancion)
+            servs, tamaño, name_song = c.searchSong(cancion)
             if servs:
                 return servs, tamaño
         except:
             pass
 
+# busqueda generica para buscar por titulo, artista y album
+
+
+def reqParam(parametro_de_busqueda, servers, param):
+    for server in servers:
+        try:
+            c = zerorpc.Client()
+            c.connect("tcp://localhost:"+server["port"])
+            # servs, tamaño, name_song = c.searchSong(
+            list_songs_found = c.searchSong(
+                parametro_de_busqueda, param)
+            if list_songs_found:
+                # return servs, tamaño, name_song
+                return list_songs_found
+        except:
+            print("no se pudo hacer la busqueda en este servidor")
+            pass
 
 # ejecutar el cliente y el servidor en dos hilos diferentes
 # def executeClientAndServer():
