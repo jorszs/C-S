@@ -1,7 +1,7 @@
 from tkinter import ttk
 from tkinter import *
 from pymongo import MongoClient
-import 
+
 
 
 class Napster:
