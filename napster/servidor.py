@@ -32,6 +32,8 @@ class dir_rpc:
                 # print(x["servidores"])
                 list_songs_found.append({
                     "titulo": x["titulo"],
+                    "artista": x["artista"],
+                    "album": x["album"],
                     "tamaño": x["tamaño"],
                     "servidores": x["servidores"]
                 })

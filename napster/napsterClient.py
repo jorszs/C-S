@@ -12,7 +12,9 @@ import sys
 import zerorpc
 import threading
 import eyed3
+from functools import partial
 from src.utils.import_cancion import importar_cancion
+from src.components.interfaz import index
 
 '''path = "./src/songs"
 ip = "localhost"
@@ -25,9 +27,96 @@ servers = [{"ip": "localhost", "port": "8000"}]'''
 #       conectarse y recibir con un ciclo las partes de las canciones
 
 
+def download(app, list_songs_found, path, a):
+    print("click")
+    item = app.tree.selection()[0]
+    titulo = app.tree.item(item)["text"]
+    print(titulo)
+    # return app.tree.item(item)["text"]
+    # descargar
+    for song in list_songs_found:
+        if song["titulo"] == titulo:
+            print("match")
+            name_song = song["titulo"]
+            size_song = song["tamaño"]
+            servers_list = song["servidores"]
+            print("servidores: ", servers_list)
+            print("tamaño: ", size_song)
+            # TO DO: conectarse a todos los servidores que tienen la cancion
+            song_files_list = conectToServersThreads(
+                name_song, servers_list, size_song)
+            song_files_list.sort(key=lambda dict: dict["id"])
+            if(song_files_list):
+                print("todas las partes recibidas")
+                # TO DO: guardar el archivo en mi directorio /src/songs
+                archivo = open(path + name_song + ".mp3", "wb")
+                archivo.seek(0)
+
+                for i in song_files_list:
+                    archivo.write(i["song"])
+
+                # reproducir cancion
+                url = path + name_song + ".mp3"
+                url_song = os.path.abspath(url)
+                os.startfile(url_song)
+            else:
+                print("no se descargo la cancion")
+                pass
+
+
+def search(application, path):
+    print("hola")
+    print(application.servers)
+    print(application.aplication)
+    # refrescar pantalla
+    servers = application.servers
+    tabla = application.tree
+    hijos = tabla.get_children()
+    for hijo in hijos:
+        tabla.delete(hijo)
+    # acceder a filtro y al input
+    filtro = application.filtro.get()
+    texto = application.opcion.get()
+    print(filtro, "\t\n", texto)
+
+    # buscar en la base de datos
+    list_songs_found = reqParam(texto, servers, filtro)
+    application.tree.bind("<ButtonRelease-1>",
+                          partial(download, application, list_songs_found, path))
+    for song in list_songs_found:
+        print(song)
+        application.tree.insert(
+            '', 0, text=song["titulo"], values=(song["artista"], song["album"], "descargar"))
+    #application.tree.bind("ButtonRelease-1", download)
+    # insert datos
+    # application
+
+
 def ClientNapster(path, ip, port, servers):
     while True:
         reportSongsToServer(path, ip, port, servers)
+        # TO DO: ejecutar la interfaz
+        # esta devuelve el parametro de busqueda y el filtro
+        # 1. buscar la cancion y devolver el titulo album y artista
+        # 2. listar las canciones en la interfaz con boton de descargas
+        # 3. tras oprimir el boton descargar descargar la cancion directamente de los clientes
+        # index.interfaz()
+        window = index.Tk()
+        # window.configure(background="cornflower blue")
+        print(window)
+        texto = "BUSCAR"
+        application = index.Napster(window, search, texto, path)
+        # application.aplication = texto
+        application.setApplication(texto)
+        application.setServers(servers)
+        tree = application.getTable()
+        hijos = tree.get_children()
+        for hijo in hijos:
+            tree.delete(hijo)
+
+        # window.btn_buscar["text"] = "hola"
+        window.mainloop()
+
         opcion, parametro_de_busqueda = menu()
         print("opcion: ", opcion)
         if opcion == "1":
@@ -102,12 +191,12 @@ def reportSongsToServer(path, ip, port, servers):
             print("report song. servidor: ", server)
             ip = server["ip"]
             port = server["port"]
-            #print("ip", type(server["ip"]))
-            #print("port", type(server["port"]))
+            # print("ip", type(server["ip"]))
+            # print("port", type(server["port"]))
             cliente = zerorpc.Client()
 
             url = "tcp://"+ip+":"+port
-            #print("url: ", url)
+            # print("url: ", url)
             cliente.connect(url)
             cliente.reportSongs(client_songs)
         except:
@@ -132,7 +221,7 @@ def seek_songs_of_folder(path):
                                   "album": t.tag.album,
                                   "tamaño": size}
                 lista_canciones.append(song_metadatos)
-                #print(t.tag.title, t.tag.artist)
+                # print(t.tag.title, t.tag.artist)
                 # TO DO: construir un esquema song: {titulo,artista, album,}
                 #       guardar las canciones en una lista
                 # {yo:{ip:"",
@@ -174,7 +263,7 @@ def conectToServers(parametro_de_busqueda, list_servers, size_song):
     x = 0
     list_of_parts = []
     parts = len(list_servers)
-    #part = size_song / parts
+    # part = size_song / parts
 
     for i in list_servers:
         url = "tcp://"+i["ip"]+":"+i["port"]
@@ -195,7 +284,7 @@ def conectToServersThreads(name_song, list_servers, size_song):
     list_of_parts = []
     hilos = []
     parts = len(list_servers)
-    #part = size_song / parts
+    # part = size_song / parts
 
     def song(i, x):
         print("ejecutando: "+str(x))
@@ -253,7 +342,7 @@ def reqParam(parametro_de_busqueda, servers, param):
 
 # ejecutar el cliente y el servidor en dos hilos diferentes
 # def executeClientAndServer():
-###    client = threading.Thread(target=ClientNapster)
+# client = threading.Thread(target=ClientNapster)
 # client.start()
 
 

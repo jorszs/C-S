@@ -1,63 +1,73 @@
-from tkinter import ttk
+from tkinter.ttk import *
 from tkinter import *
 from pymongo import MongoClient
-
+from functools import partial
 
 
 class Napster:
+    aplication = "mundo"
+    servers = "servidores"
 
-    def __init__(self, window):
-
+    def __init__(self, window, comand, texto, path):
         wind = window
         wind.title("Napster Application")
 
-        background = PhotoImage(file = 'unnamed.gif')
+        '''background = PhotoImage(file = 'unnamed.gif')
         Background = Label(wind, image = background)
-        Background.place(x = -2, y = -2)
+        Background.place(x = -2, y = -2)'''
 
-    
-        #Crear un Frame: donde me permite adentro crear elementos 
+        # Crear un Frame: donde me permite adentro crear elementos
 
-        frame = LabelFrame(wind, text = "Busqueda", font =  15)
-        frame.grid(row = 1, column = 0, pady = 15, padx = 5)
+        frame = LabelFrame(wind, text="BUSCAR", font=15)
+        frame.grid(row=1, column=0, pady=15, padx=5)
 
-        #Name input
+        # Name input
 
-        Label(frame, text = "Opcion", font =  12).grid(row = 1, column = 0)
-        com = ttk.Combobox(frame, values =["Canciones", "Album", "Artista"],  width=10 ).grid(row = 1, column = 1, padx = 5, pady = 5)
-        opcion = Entry(frame, width=40)
-        opcion.focus()
-        opcion.grid(row = 1, column = 2, padx = 5)
+        Label(frame, text="Opcion", font=12).grid(row=1, column=0)
+        self.filtro = Combobox(frame,  width=10)
+        self.filtro['values'] = ("titulo", "album", "artista")
+        self.filtro.grid(row=1, column=1, padx=5, pady=5)
+        self.filtro.current(0)
+        self.opcion = Entry(frame, width=40)
+        self.opcion.focus()
+        self.opcion.grid(row=1, column=2, padx=5)
 
-        #Button search
-        #Column span:Centrado
-        #Sticky: Todo el ancho de mi ventana 
-        ttk.Button(frame, text = "BUSCAR", width=10).grid(row = 1, columnspan = 3,column = 3, padx = 5)
-        
+        # Button search
+        # Column span:Centrado
+        # Sticky: Todo el ancho de mi ventana
 
-        
-        
+        btn_buscar = Button(frame, text=texto, width=10, command=partial(comand, self, path)).grid(
+            row=1, columnspan=3, column=3, padx=5)
 
-        #Table
-        tree = ttk.Treeview(height = 10, columns = ("1", "2", "3"))
-        tree.grid(row = 4, column = 0, columnspan = 5)
-        tree.heading('#0', text = "Titulo",anchor = CENTER)
-        tree.heading("1", text = "Artista", anchor = CENTER)
-        tree.heading("2", text = "Album", anchor = CENTER)
-        tree.heading("3", text = "Opcion", anchor = CENTER)
-
+        # Table
+        self.tree = Treeview(height=10, columns=("1", "2", "3"))
+        self.tree.grid(row=4, column=0, columnspan=5)
+        self.tree.heading('#0', text="Titulo", anchor=CENTER)
+        self.tree.heading("1", text="Artista", anchor=CENTER)
+        self.tree.heading("2", text="Album", anchor=CENTER)
+        self.tree.heading("3", text="Opcion", anchor=CENTER)
+        #self.tree.bind("<ButtonRelease-1>", self.download)
         self.run_query()
 
+    def download(self, a):
+        print("click")
 
-    def run_query(self, parameters = ()):
-        puerto = 27017
-        mongoClient = MongoClient("localhost", puerto)
-        db = mongoClient.napster
+    def run_query(self, parameters=()):
 
-        collection = db.Canciones
-        print(collection)
+        try:
+            puerto = 27017
+            mongoClient = MongoClient("localhost", puerto)
+            db = mongoClient.napster
 
-    def search(self, opcion, com):
+            collection = db.canciones
+            canciones = collection.find({})
+            for cursor in canciones:
+                print("x")
+                # cursor["titulo"]
+        except:
+            print("no se conecto a base de datos")
+
+    def search(self, opcion, filtro):
         puerto = 27017
         mongoClient = MongoClient("localhost", puerto)
         db = mongoClient.napster
@@ -67,16 +77,24 @@ class Napster:
         if len(search) == 0:
             print("Buscar")
         else:
-            filter = com.get()
+            filter = filtro.get()
             if (filter == 'Canciones'):
                 print("aaa")
 
-        
+    def getTable(self):
+        return self.tree
+
+    def setApplication(self, application):
+        self.application = application
+        # print(self.aplication)
+
+    def setServers(self, servers):
+        self.servers = servers
+# if __name__ == '__main__':
 
 
-
-
-if __name__ == '__main__':
-    window =Tk()
+'''
+def interfaz():
+    window = Tk()
     application = Napster(window)
-    window.mainloop()
+    window.mainloop()'''
