@@ -102,7 +102,10 @@ def ClientNapster(path, ip, port, servers):
         # 3. tras oprimir el boton descargar descargar la cancion directamente de los clientes
         # index.interfaz()
         window = index.Tk()
-        # window.configure(background="cornflower blue")
+        window.configure(background="black")
+        icon = window.iconbitmap('src/imgs/napster.ico')
+        background = index.PhotoImage(file='src/imgs/background.png')
+        index.Background = index.Label(window, image=background)
         print(window)
         texto = "BUSCAR"
         application = index.Napster(window, search, texto, path)
