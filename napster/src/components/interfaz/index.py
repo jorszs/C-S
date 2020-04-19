@@ -40,7 +40,10 @@ class Napster:
             row=1, columnspan=3, column=3, padx=5)
 
         # Table
+
         self.tree = Treeview(height=10, columns=("1", "2", "3"))
+        vsb = Scrollbar(orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=vsb.set)
         self.tree.grid(row=4, column=0, columnspan=5)
         self.tree.heading('#0', text="Titulo", anchor=CENTER)
         self.tree.heading("1", text="Artista", anchor=CENTER)

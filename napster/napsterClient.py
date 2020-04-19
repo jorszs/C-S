@@ -81,6 +81,9 @@ def search(application, path):
 
     # buscar en la base de datos
     list_songs_found = reqParam(texto, servers, filtro)
+    btn_descargar_todo = index.Button(
+        application.tree, text="Descargar Todo", width=100, command=partial(downloadAll, list_songs_found, path))
+    btn_descargar_todo.place(x=60, y=200)
     application.tree.bind("<ButtonRelease-1>",
                           partial(download, application, list_songs_found, path))
     for song in list_songs_found:
@@ -177,6 +180,35 @@ def seekAndDowloand(param, parametro_de_busqueda, servers, path):
             print("no se descargo la cancion")
             pass
 
+
+def downloadAll(list_songs_found, path):
+    print("descargando todas las canciones")
+    for song in list_songs_found:
+        name_song = song["titulo"]
+        size_song = song["tamaño"]
+        servers_list = song["servidores"]
+        print("servidores: ", servers_list)
+        print("tamaño: ", size_song)
+        # TO DO: conectarse a todos los servidores que tienen la cancion
+        song_files_list = conectToServersThreads(
+            name_song, servers_list, size_song)
+        song_files_list.sort(key=lambda dict: dict["id"])
+        if(song_files_list):
+            print("yeeeahh")
+            # TO DO: guardar el archivo en mi directorio /src/songs
+            archivo = open(path + name_song + ".mp3", "wb")
+            archivo.seek(0)
+
+            for i in song_files_list:
+                archivo.write(i["song"])
+
+            # reproducir cancion
+            url = path + name_song + ".mp3"
+            url_song = os.path.abspath(url)
+            os.startfile(url_song)
+        else:
+            print("no se descargo la cancion")
+            pass
 # buscar y enviar reporte de canciones al servidor principal
 
 
