@@ -13,7 +13,7 @@ import zerorpc
 import threading
 import eyed3
 from functools import partial
-from src.utils.import_cancion import importar_cancion
+#from src.utils.import_cancion import importar_cancion
 from src.components.interfaz import index
 
 '''path = "./src/songs"
