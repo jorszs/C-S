@@ -1,6 +1,7 @@
 import napsterServer
 import napsterClient
 import threading
+import socket
 
 port = "8013"
 path = "./src/songs3/"
@@ -17,7 +18,7 @@ def executeServer():
 
 # client
 
-ip = "localhost"
+ip = socket.gethostbyname(socket.gethostname())  # ip = "localhost"
 
 servers = [{"ip": "localhost", "port": "8000"},
            {"ip": "localhost", "port": "8001"}]

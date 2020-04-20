@@ -1,6 +1,8 @@
 import napsterServer
 import napsterClient
 import threading
+import socket
+
 
 port = "8011"
 path = "./src/songs/"
@@ -17,10 +19,11 @@ def executeServer():
 
 # client
 
-ip = "localhost"
+ip = socket.gethostbyname(socket.gethostname())  # ip = "localhost"
 
 
-servers = [{"ip": "localhost", "port": "8001"},{"ip": "localhost", "port": "8000"}]
+servers = [{"ip": "localhost", "port": "8001"},
+           {"ip": "localhost", "port": "8000"}]
 # ejecutar el cliente y el servidor en dos hilos diferentes
 
 # ejecutar cliente y servidor
