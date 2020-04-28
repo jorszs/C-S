@@ -1,5 +1,5 @@
-'''import zmq
-context = zmq.Context()
+import zmq
+'''context = zmq.Context()
 # socket to talk to server
 print ("connecting")
 cliente = context.socket(zmq.REQ)
